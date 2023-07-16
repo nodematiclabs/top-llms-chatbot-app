@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nodematic Custom Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F3F3F3;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #4F4F4F;
+            text-align: center;
+        }
+        #chatbox {
+            height: 500px;
+            width: 500px;
+            border: 1px solid #4F4F4F;
+            background-color: #FFF;
+            overflow: auto;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        #input {
+            display: flex;
+            justify-content: space-between;
+        }
+        input {
+            flex-grow: 1;
+            border-radius: 5px;
+            border: 1px solid #4F4F4F;
+            padding: 5px;
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4F4F4F;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #7C7C7C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nodematic Custom Chatbot</h1>
+        <div id="chatbox"></div>
+        <div id="input">
+            <input id="userInput" type="text">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function appendMessage(message, user, color) {
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div style="background-color: ${color}"><b>` + user + ": </b>" + message + "</div>";
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value;
+            userInput.value = "";
+
+            fetch('/api/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 'input': message }),
+            })
+            .then(response => {
+                appendMessage(message, 'You', 'transparent');
+                return response.json();
+            })
+            .then(data => {
+                appendMessage(data.response.google, 'Google', 'rgb(232, 240, 254)');
+                appendMessage(data.response.openai, 'OpenAI', '#d6f6d5');
+                // appendMessage(data.response.anthropic, 'Anthropic', '#d6f6d5');
+            })
+            .catch(error => {
+                appendMessage(error.message, 'Error');
+            });
+        }
+    </script>
+</body>
+</html>
